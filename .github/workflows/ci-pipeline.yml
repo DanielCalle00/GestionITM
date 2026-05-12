@@ -1,0 +1,47 @@
+# 1.��C�MO SE LLAMA NUESTRO ROBOT?
+name: Integraci�n Continua Nivel 5
+
+# 2. �CU�NDO SE DESPIERTA NUESTRO ROBOT?
+on:
+  push:
+    branches: [ "main", "master" ] # Se activa si alguien hace push a la rama main o master
+  pull_request:
+    branches: [ "main", "master" ] # Se activa  si alguien pide unir su c�digo a la rama main o master
+
+# 3. �QU� TRABAJOS (JOBS) REALIZA NUESTRO ROBOT?
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  build-and-test:
+    # 4. �QU� COMPUTADOR LE PEDIIMOS PRESTADO A GITHUB PARA QUE EJECUTE NUESTRO ROBOT?
+    runs-on: ubuntu-latest # Pedimos un servidor con el sistema operativo Ubuntu nuevecito y en blanco
+
+    # 5. LOS PASOS DE LA RECETA DE C�MO SE PREPARA NUESTRO ROBOT PARA HACER SU TRABAJO
+    steps:
+
+    # Paso A: Descargar nuestro c�digo al servidor prestado por GitHub
+    - name: Descargar c�digo fuente
+      uses: actions/checkout@v4 # Usamos la acci�n de GitHub para descargar el c�digo
+
+    # Paso B: Instalar el SDK de C# .NET 8 en el servidor prestado por GitHub
+    - name: Instalar .NET 8
+      uses: actions/setup-dotnet@v4 # Usamos la acci�n de GitHub para instalar el SDK de .NET
+      with:
+        dotnet-version: '8.0.x' # Especificamos que queremos la versi�n 8.0 del SDK
+
+    # Paso C: Descargar los Nugets (Entity Framework Core, Automapper, etc.) necesarios para compilar nuestro c�digo
+    - name: Restaurar dependencias
+      run: dotnet restore GestionITM/GestionITM.slnx # Ejecutamos el comando para restaurar las dependencias del proyecto
+
+    # Paso D: Compilar nuestro c�digo para asegurarnos de que no hay errores de compilaci�n o sintaxis
+    - name: Compilar c�digo
+      run: dotnet build GestionITM/GestionITM.slnx --configuration Release --no-restore # Compilamos el c�digo sin restaurar dependencias (ya lo hicimos en el paso anterior)
+
+    # Paso E: El detector de mentiras de nuestro robot: Ejecutar las pruebas unitarias para asegurarnos de que nuestro c�digo funciona correctamente
+    - name: Ejecutar pruebas unitarias
+      run: dotnet test GestionITM/GestionITM.slnx --configuration Release --no-build --verbosity normal # Ejecutamos las pruebas unitarias sin compilar (ya lo hicimos en el paso anterior)  
+
+    # Paso F: (Bonus Nivel 5) Construir el contenedor de Docker para asegurarnos de que nuestro c�digo se puede ejecutar en un entorno de producci�n
+    - name: Validar construcci�n de imagen de Docker
+      run: docker build -t gestion-itm-api:latest -f GestionITM/Dockerfile GestionITM/ # Construimos la imagen de Docker usando el Dockerfile de la ra�z del proyecto # Construimos la imagen de Docker usando el Dockerfile en el directorio actual

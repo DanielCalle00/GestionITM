@@ -1,0 +1,11 @@
+[18:10:37 INF] Now listening on: http://localhost:5016 <s:Microsoft.Hosting.Lifetime>
+[18:10:37 INF] Application started. Press Ctrl+C to shut down. <s:Microsoft.Hosting.Lifetime>
+[18:10:37 INF] Hosting environment: Development <s:Microsoft.Hosting.Lifetime>
+[18:10:37 INF] Content root path: C:\Users\andre\Desktop\GestionITM\GestionITM.API <s:Microsoft.Hosting.Lifetime>
+[18:10:41 INF] HTTP GET /swagger responded 301 in 24.0464 ms <s:Serilog.AspNetCore.RequestLoggingMiddleware>
+[18:10:42 INF] HTTP GET /swagger/index.html responded 200 in 215.8746 ms <s:Serilog.AspNetCore.RequestLoggingMiddleware>
+[18:10:42 INF] HTTP GET /swagger/swagger-ui-standalone-preset.js responded 200 in 108.4814 ms <s:Serilog.AspNetCore.RequestLoggingMiddleware>
+[18:10:42 INF] HTTP GET /swagger/swagger-ui.css responded 200 in 123.2994 ms <s:Serilog.AspNetCore.RequestLoggingMiddleware>
+[18:10:42 INF] HTTP GET /swagger/swagger-ui-bundle.js responded 200 in 208.3820 ms <s:Serilog.AspNetCore.RequestLoggingMiddleware>
+[18:10:43 INF] HTTP GET /swagger/v1/swagger.json responded 200 in 65.0522 ms <s:Serilog.AspNetCore.RequestLoggingMiddleware>
+[18:10:43 INF] HTTP GET /swagger/favicon-32x32.png responded 200 in 0.4828 ms <s:Serilog.AspNetCore.RequestLoggingMiddleware>
