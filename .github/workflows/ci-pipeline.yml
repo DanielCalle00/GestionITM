@@ -7,6 +7,7 @@ on:
     branches: [ "develop", "master" ]
 
 env:
+  # Esto asegura que las acciones de GitHub usen una versión moderna de Node
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
@@ -22,17 +23,18 @@ jobs:
       with:
         dotnet-version: '8.0.x'
 
-    # Ajustamos las rutas eliminando el prefijo "GestionITM/" si el robot ya está dentro de esa carpeta
+    # Paso C: Usamos *.slnx para que el robot encuentre la solución automáticamente
     - name: Restaurar dependencias
-      run: dotnet restore GestionITM.slnx 
+      run: dotnet restore *.slnx 
 
+    # Paso D: Compilamos en modo Release para asegurar que todo el código es válido
     - name: Compilar código
-      run: dotnet build GestionITM.slnx --configuration Release --no-restore
+      run: dotnet build *.slnx --configuration Release --no-restore
 
+    # Paso E: Ejecutamos los tests de xUnit que preparó Daniel
     - name: Ejecutar pruebas unitarias
-      run: dotnet test GestionITM.slnx --configuration Release --no-build --verbosity normal
+      run: dotnet test *.slnx --configuration Release --no-build --verbosity normal
 
-    # Ajuste importante para Docker:
-    # Según tu imagen, el Dockerfile está en la raíz junto al .slnx
+    # Paso F: Validamos que el Dockerfile que ya probamos en local también funcione en la nube
     - name: Validar construcción de imagen de Docker
       run: docker build -t gestion-itm-api:latest -f Dockerfile .
