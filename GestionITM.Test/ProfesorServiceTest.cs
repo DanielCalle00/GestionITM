@@ -8,56 +8,48 @@ using Moq;
 using GestionITM.Domain.Interfaces;
 using GestionITM.Domain.Dtos;
 using GestionITM.Infrastructure.Services;
-using Microsoft.Extensions.Logging;
 using AutoMapper;
 using GestionITM.Domain.Entities;
+using Microsoft.Extensions.Logging;
 
 namespace GestionITM.Tests
 {
     public class ProfesorServiceTests
     {
-        // Prueba 1: El camino triste (validar que falle cuando debe fallar)
-        [Fact] // Este atributo le dice a Visual Studio que este método es una prueba unitaria
-        public async Task RegistrarProfesor_ConEspecialidadVacia_DebeRetornarFalse()
+        // Prueba 1: El camino triste (validar que falle cuando la especialidad es vacía)
+        [Fact]
+        public async Task RegistrarProfesor_ConEspecialidadVacia_DebeLanzarExcepcion()
         {
             // 1. Arrange (Preparar el escenario)
-
-            // Creamos los dobles de acción (Mocks) usando nuestras interfaces
-            // Esta es la razón por la que creamos IProfesorRepository: para poder simular su comportamiento sin depender de la base de datos real
             var mockRepository = new Mock<IProfesorRepository>();
             var mockMapper = new Mock<IMapper>();
             var mockLogger = new Mock<ILogger<ProfesorService>>();
 
-            // Configuramos el mapper para devolver un Profesor cualquiera cuando reciba un ProfesorCreateDto
+            // Configuramos el mapper para devolver un objeto Profesor base
             mockMapper
                 .Setup(m => m.Map<Profesor>(It.IsAny<ProfesorCreateDto>()))
                 .Returns(new Profesor());
 
-            // Instanciamos el servicio REAL, pero le inyectamos los mocks en lugar de las implementaciones reales
             var profesorService = new ProfesorService(mockRepository.Object, mockMapper.Object, mockLogger.Object);
-
-            // Preparamos unos datos errados a propósito para probar la validación
 
             var dtomalo = new ProfesorCreateDto
             {
                 Nombre = "Juan Perez",
                 Email = "juan@itm.edu.co",
-                Especialidad = "" // Esta es la especialidad vacía que queremos probar
-
+                Especialidad = "" // Especialidad vacía para forzar el error
             };
 
-            // 2. Act (Ejecutar la acción que queremos probar)
+            // 2. Act & Assert
+            // Capturamos la excepción y verificamos que el mensaje contenga la palabra clave
+            // Usamos ToLower() y Contains para que sea una prueba robusta ante cambios menores de texto
+            var excepcion = await Assert.ThrowsAsync<Exception>(() => profesorService.RegistrarProfesorAsync(dtomalo));
 
-            // Exigimos (Assert) que al ejecutar (Act) el método,el sistema DEBE lanzar un error.
-            // En esta implementación, cuando la especialidad está vacía el servicio devuelve false
-            // y no lanza excepción. Probamos ese comportamiento explícitamente.
-            var resultado = await profesorService.RegistrarProfesorAsync(dtomalo);
-            Assert.False(resultado);
+            Assert.Contains("especialidad", excepcion.Message.ToLower());
         }
 
-        // Prueba 2 : El camino feliz (Validar que funcione cuando debe funcionar)
+        // Prueba 2: El camino feliz (Validar que funcione con datos correctos)
         [Fact]
-        public async Task RegistrarProfesor_DatosCorrectos_DebeLllamarAlRepositorio()
+        public async Task RegistrarProfesor_DatosCorrectos_DebeLlamarAlRepositorio()
         {
             // 1. Arrange
             var mockRepository = new Mock<IProfesorRepository>();
@@ -69,6 +61,7 @@ namespace GestionITM.Tests
                 .Returns(new Profesor());
 
             var profesorService = new ProfesorService(mockRepository.Object, mockMapper.Object, mockLogger.Object);
+
             var dtobien = new ProfesorCreateDto
             {
                 Nombre = "Ana",
@@ -77,12 +70,10 @@ namespace GestionITM.Tests
             };
 
             // 2. Act
-
             await profesorService.RegistrarProfesorAsync(dtobien);
 
             // 3. Assert
-            // Verificamos que el método AgregarAsync del repositorio se haya llamado exactamente una vez
-            // It.IsAny<Profesor>() signfica que no nos importa el objeto Profesor específico que se le pasó, solo queremos asegurarnos de que se llamó con algún objeto de tipo Profesor
+            // Verificamos que se haya intentado guardar en la base de datos exactamente una vez
             mockRepository.Verify(x => x.AgregarAsync(It.IsAny<Profesor>()), Times.Once);
         }
     }
