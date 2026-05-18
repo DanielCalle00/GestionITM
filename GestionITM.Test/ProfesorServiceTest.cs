@@ -8,6 +8,7 @@ using Moq;
 using GestionITM.Domain.Interfaces;
 using GestionITM.Domain.Dtos;
 using GestionITM.Infrastructure.Services;
+using Microsoft.Extensions.Logging;
 using AutoMapper;
 using GestionITM.Domain.Entities;
 
@@ -25,6 +26,7 @@ namespace GestionITM.Tests
             // Esta es la razón por la que creamos IProfesorRepository: para poder simular su comportamiento sin depender de la base de datos real
             var mockRepository = new Mock<IProfesorRepository>();
             var mockMapper = new Mock<IMapper>();
+            var mockLogger = new Mock<ILogger<ProfesorService>>();
 
             // Configuramos el mapper para devolver un Profesor cualquiera cuando reciba un ProfesorCreateDto
             mockMapper
@@ -32,7 +34,7 @@ namespace GestionITM.Tests
                 .Returns(new Profesor());
 
             // Instanciamos el servicio REAL, pero le inyectamos los mocks en lugar de las implementaciones reales
-            var profesorService = new ProfesorService(mockRepository.Object, mockMapper.Object);
+            var profesorService = new ProfesorService(mockRepository.Object, mockMapper.Object, mockLogger.Object);
 
             // Preparamos unos datos errados a propósito para probar la validación
 
@@ -60,12 +62,13 @@ namespace GestionITM.Tests
             // 1. Arrange
             var mockRepository = new Mock<IProfesorRepository>();
             var mockMapper = new Mock<IMapper>();
+            var mockLogger = new Mock<ILogger<ProfesorService>>();
 
             mockMapper
                 .Setup(m => m.Map<Profesor>(It.IsAny<ProfesorCreateDto>()))
                 .Returns(new Profesor());
 
-            var profesorService = new ProfesorService(mockRepository.Object, mockMapper.Object);
+            var profesorService = new ProfesorService(mockRepository.Object, mockMapper.Object, mockLogger.Object);
             var dtobien = new ProfesorCreateDto
             {
                 Nombre = "Ana",
